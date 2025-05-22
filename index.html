@@ -369,7 +369,7 @@ nano index.html            color: #f5c518;
         <button>Pesquisar</button>
         <button class="upload-btn">Postar</button>
 
-<img src="https://nv-venue-advantages-bet.trycloudflare.com/avatar.jpg" class="user-avatar" onclick="toggleMenu()" />
+<img class="user-avatar" onclick="toggleMenu()" />
 
     </nav>
 
@@ -494,6 +494,18 @@ nano index.html            color: #f5c518;
             </div>
         </div>
     </div>
+
+
+<script>
+  const CLOUD_BASE = "https://matolavd-web-ozcv.vercel.app";
+  const CAMINHO_VIDEOS = CLOUD_BASE + "/";
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelector(".user-avatar").src = `${CLOUD_BASE}/avatar.jpg`;
+  });
+</script>
 
 
 <script>
