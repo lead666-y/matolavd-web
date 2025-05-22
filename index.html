@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="max-age=31536000">  <!-- 👈 Adicione esta linha -->
+    <title>Matola - Plataforma de Vídeos</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #f5c518;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #000;
+            padding: 10px 20px;
+            color: #FFD700;
+            font-size: 20px;
+        }
+
+        .navbar h1 {
+            color: #f5c518;
+        }
+
+        .navbar input {
+            padding: 5px;
+        }
+
+        .navbar button {
+            background-color: #f5c518;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .video-container {
+            width: 100vw;
+            margin-top: 0px;
+            overflow-x: auto;
+            white-space: nowrap;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: calc(100vh - 80px);
+            z-index: 1;
+        }
+
+        .video-grid {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            padding: 20px;
+            scroll-snap-type: x mandatory;
+            overflow-x: auto;
+            scrollbar-width: thin;
+        }
+
+        .video-card {
+            scroll-snap-align: center;
+            min-width: 320px;
+            max-width: 350px;
+            background: #222;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        .video-card video {
+            width: 100%;
+            height: 80vh;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .user-menu {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            z-index: 1000;
+            cursor: pointer;
+        }
+
+        .user-options {
+            display: none;
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background: #333;
+            border-radius: 10px;
+            padding: 10px;
+            width: 150px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 2000;
+        }
+
+        .user-options a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 8px;
+            border-radius: 5px;
+        }
+
+        .user-options a:hover {
+            background: #FFD700;
+            color: black;
+        }
+
+        .upload-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .upload-content {
+            background-color: #222;
+            padding: 20px;
+            border-radius: 10px;
+            width: 400px;
+            max-width: 90%;
+        }
+
+        .upload-content h2 {
+            color: #f5c518;
+            margin-top: 0;
+        }
+
+        .upload-content label {
+            display: block;
+            margin: 10px 0 5px;
+            color: #f5c518;
+        }
+
+        .upload-content input, 
+        .upload-content textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #444;
+            background-color: #333;
+            color: white;
+        }
+
+        .upload-content textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .upload-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .upload-buttons button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .cancel-btn {
+            background-color: #444;
+            color: white;
+        }
+
+        .submit-btn {
+            background-color: #f5c518;
+            color: black;
+        }
+
+        .file-input-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 10px;
+            background-color: #f5c518;
+            color: black;
+            text-align: center;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .file-input-label:hover {
+            background-color: #FFD700;
+        }
+
+        .file-input {
+            position: absolute;
+            width: 0.1px;
+            height: 0.1px;
+            opacity: 0;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .file-name {
+            margin-top: 5px;
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        .video-wrapper {
+            position: relative;
+        }
+
+        .view-counter {
+            position: absolute;
+            top: 8px;
+            left: 10px;
+            background-color: rgba(0, 0, 0, 0.6);
+nano index.html            color: #f5c518;
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 5px;
+            z-index: 2;
+        }
+
+        /* BOTÃO DE LIKE - TAMANHO FIXO 40x40px */
+        .like-overlay {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            z-index: 2;
+            cursor: pointer;
+        }
+
+        .like-icon {
+            width: 24px;
+            height: 24px;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .like-overlay:hover .like-icon {
+            transform: scale(1.2);
+        }
+
+        .like-count {
+            display: none; /* Removemos o contador do overlay */
+        }
+
+        /* FOTO DO CANAL - TAMANHO FIXO 40x40px */
+        .canal-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .canal-foto {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #f5c518;
+        }
+
+        /* COMENTÁRIOS - AVATAR 40x40px */
+        .comentarios-box {
+            background-color: #1e1e1e;
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 10px;
+            color: white;
+        }
+
+        .comentarios-box h4 {
+            margin: 0 0 10px;
+            font-size: 14px;
+            color: #f5c518;
+        }
+
+        .comentarios-lista {
+            max-height: 120px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            padding-right: 6px;
+        }
+
+        .comentario-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+
+        .comentario-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 8px;
+        }
+
+        .comentario-input {
+            display: flex;
+            align-items: center;
+            background-color: #2a2a2a;
+            border-radius: 20px;
+            padding: 6px 10px;
+        }
+
+        .comentario-input input {
+            flex: 1;
+            background: none;
+            border: none;
+            outline: none;
+            color: white;
+            font-size: 13px;
+        }
+
+        /* CONTADOR DE LIKES SEPARADO */
+        .likes-counter {
+            position: absolute;
+            bottom: 60px;
+            left: 10px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 5px;
+            z-index: 2;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <h1>Matola</h1>
+        <input type="text" placeholder="Buscar...">
+        <button>Pesquisar</button>
+        <button class="upload-btn">Postar</button>
+
+<img src="https://nv-venue-advantages-bet.trycloudflare.com/avatar.jpg" class="user-avatar" onclick="toggleMenu()" />
+
+    </nav>
+
+    <div class="user-menu">
+        <div class="user-options" id="userOptions">
+            <a href="#">Configurações</a>
+            <a href="#">Minha Conta</a>
+            <a href="filmes.html">Filmes e Séries</a>
+            <a href="#">UCL</a>
+            <a href="cristao.html">Cristão</a>
+            <a href="inteligencia.html">Inteligência Artificial</a>
+            <a href="marketing.html">Marketing Digital</a>
+            <a href="#">Streaming Digital/Lives</a>
+            <a href="#">Noticias de ultima Hora</a>
+            <a href="#">Matola Streaming Music</a>
+            <a href="#">Casino</a>
+            <a href="matola_chat.html">Matola Chat</a>
+            <a href="xitique.html">Xitique</a>
+            <a href="#">Negocios/Boladas</a>
+            <a href="universidade.html" class="menu-btn">Universidade</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </div>
+    </div>
+
+    <!-- Modal de Upload -->
+    <div class="upload-modal" id="uploadModal">
+        <div class="upload-content">
+            <h2>Postar Novo Vídeo</h2>
+            <form id="uploadForm">
+<div class="file-input-container">
+    <label for="videoFile" class="file-input-label">Selecionar Vídeo</label>
+    <input type="file" id="videoFile" class="file-input" accept="video/*" required>
+    <div class="file-name" id="fileName">Nenhum arquivo selecionado</div>
+</div>
+                
+                <label for="videoTitle">Título do Vídeo:</label>
+                <input type="text" id="videoTitle" required>
+                
+                <label for="videoDescription">Descrição:</label>
+                <textarea id="videoDescription"></textarea>
+                
+                <div class="upload-buttons">
+                    <button type="button" class="cancel-btn" onclick="closeUploadModal()">Cancelar</button>
+                    <button type="submit" class="submit-btn">Publicar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="video-container">
+        <div class="video-grid" id="videoGrid">
+            <!-- Vídeo 1 -->
+            <div class="video-card">
+                <div class="video-wrapper">
+                    <div class="view-counter" id="views-video1">0 VIEWS</div>
+                    <div class="likes-counter" id="likes-video1">0 K</div>
+                     <video src="file:///storage/emulated/0/ArmazenarVideos/video1.mp4" controls onplay="contarVisualizacao('video1')"></video>
+                    <div class="like-overlay" onclick="darLike('video1')">
+                        <img src="img/like.jpg" alt="Like" class="like-icon" />
+                    </div>
+                </div>
+                <div class="canal-info">
+                    <img class="canal-foto" src="img/perfil_canal.jpg" alt="Canal">
+                    <h3>Título do Vídeo 1</h3>
+                </div>
+                <div class="comentarios-box">
+                    <h4>Comentários</h4>
+                    <div class="comentarios-lista" id="comentarios-video1"></div>
+                    <div class="comentario-input">
+                        <img class="comentario-avatar" src="img/perfil_canal.jpg" alt="User">
+                        <input type="text" placeholder="Comente algo..." onkeypress="enviarComentario(event, 'comentarios-video1')">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vídeo 2 -->
+            <div class="video-card">
+                <div class="video-wrapper">
+                    <div class="view-counter" id="views-video2">0 visualizações</div>
+                    <div class="likes-counter" id="likes-video2">0 likes</div>
+                     <video src="file:///storage/emulated/0/ArmazenarVideos/video2.mp4" controls onplay="contarVisualizacao('video2')"></video>
+                    <div class="like-overlay" onclick="darLike('video2')">
+                        <img src="img/like.jpg" alt="Like" class="like-icon" />
+                    </div>
+                </div>
+                <div class="canal-info">
+                    <img class="canal-foto" src="img/perfil_canal.jpg" alt="Canal">
+                    <h3>Título do Vídeo 2</h3>
+                </div>
+                <div class="comentarios-box">
+                    <h4>Comentários</h4>
+                    <div class="comentarios-lista" id="comentarios-video2"></div>
+                    <div class="comentario-input">
+                        <img class="comentario-avatar" src="img/perfil_canal.jpg" alt="User">
+                        <input type="text" placeholder="Comente algo..." onkeypress="enviarComentario(event, 'comentarios-video2')">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vídeo 3 -->
+            <div class="video-card">
+                <div class="video-wrapper">
+                    <div class="view-counter" id="views-video3">0 visualizações</div>
+                    <div class="likes-counter" id="likes-video3">0 likes</div>
+                     <video src="file:///storage/emulated/0/ArmazenarVideos/video3.mp4" controls onplay="contarVisualizacao('video3')"></video>
+                    <div class="like-overlay" onclick="darLike('video3')">
+                        <img src="img/like.jpg" alt="Like" class="like-icon" />
+                    </div>
+                </div>
+                <div class="canal-info">
+                    <img class="canal-foto" src="img/perfil_canal.jpg" alt="Canal">
+                    <h3>Título do Vídeo 3</h3>
+                </div>
+                <div class="comentarios-box">
+                    <h4>Comentários</h4>
+                    <div class="comentarios-lista" id="comentarios-video3"></div>
+                    <div class="comentario-input">
+                        <img class="comentario-avatar" src="img/perfil_canal.jpg" alt="User">
+                        <input type="text" placeholder="Comente algo..." onkeypress="enviarComentario(event, 'comentarios-video3')">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+<script>
+// Configuração
+const DEFAULT_THUMB = 'https://nv-venue-advantages-bet.trycloudflare.com/default_thumb.jpg';
+
+// Função para detectar WebView (APK)
+function isWebView() {
+    return navigator.userAgent.includes('WebView') || 
+           /(Matola|Android|APK)/i.test(navigator.userAgent);
+}
+
+// Aplica thumbnails
+function setupThumbnails() {
+    const videos = document.querySelectorAll('video:not([poster])');
+    
+    videos.forEach(video => {
+        const videoSrc = video.getAttribute('src');
+        const videoId = videoSrc ? videoSrc.split('/').pop().split('.')[0] : 'vid_' + Math.random().toString(36).substr(2, 5);
+        
+        // 1. Tenta usar thumbnail do localStorage
+        const savedThumb = localStorage.getItem('thumb_' + videoId);
+        if (savedThumb) {
+            video.setAttribute('poster', savedThumb);
+            return;
+        }
+        
+        // 2. No WebView (APK), usa thumbnail padrão
+        if (isWebView()) {
+            video.setAttribute('poster', DEFAULT_THUMB);
+            return;
+        }
+        
+        // 3. No navegador, gera thumbnail do vídeo
+        generateThumbnail(video, function(thumbData) {
+            video.setAttribute('poster', thumbData);
+            localStorage.setItem('thumb_' + videoId, thumbData);
+        });
+    });
+}
+
+// Inicializa quando o DOM estiver pronto
+document.addEventListener('DOMContentLoaded', setupThumbnails);
+// Também roda quando novos vídeos são adicionados dinamicamente
+new MutationObserver(setupThumbnails).observe(document.body, {
+    childList: true,
+    subtree: true
+});
+</script>
+
+
+<script>
+(function verificarToken() {
+  const token = localStorage.getItem('matola_token');
+  const hora = parseInt(localStorage.getItem('matola_token_hora'), 10);
+  const agora = Date.now();
+
+  if (!token || !hora) {
+    // Sem token: redireciona para VirtuNum.html
+    window.location.href = "virtunum.html";
+    return;
+  }
+
+  // Verificação do tipo de token
+  const isGratuito = token === "TOKEN-GRATUITO";
+  let tempoLimite = 0;
+
+  if (isGratuito) {
+    tempoLimite = 12 * 60 * 60 * 1000; // 12 horas
+  } else if (token.includes("2MZN")) {
+    tempoLimite = 12 * 60 * 60 * 1000;
+  } else if (token.includes("5MZN")) {
+    tempoLimite = 24 * 60 * 60 * 1000;
+  } else if (token.includes("10MZN")) {
+    tempoLimite = 48 * 60 * 60 * 1000;
+  } else {
+    tempoLimite = 12 * 60 * 60 * 1000; // fallback
+  }
+
+  if (agora - hora > tempoLimite) {
+    // Token expirado: limpa e redireciona
+    localStorage.removeItem('matola_token');
+    localStorage.removeItem('matola_token_hora');
+    window.location.href = "virtunum.html";
+  }
+})();
+
+
+fetch("http://localhost:9090")
+  .then(res => res.text())
+  .then(html => {
+    // Extrai arquivos .json listados no diretório
+    const matches = [...html.matchAll(/href="(video_\d+\.json)"/g)];
+    const arquivosJSON = matches.map(m => m[1]);
+
+    return Promise.all(
+      arquivosJSON.map(nome =>
+        fetch(`http://localhost:9090/${nome}`).then(res => res.json())
+      )
+    );
+  })
+  .then(listaVideos => {
+    exibirVideosNaTela(listaVideos);
+  });
+
+
+function exibirVideosNaTela(videos) {
+  const container = document.getElementById("videoGrid");
+  container.innerHTML = ""; // limpa antes
+
+  videos.forEach(video => {
+    const videoEl = document.createElement("div");
+    videoEl.className = "video-card";
+    videoEl.innerHTML = `
+      <div class="video-wrapper">
+          <div class="view-counter" id="views-${video.id}">${video.views} visualizações</div>
+          <div class="likes-counter" id="likes-${video.id}">${video.likes} likes</div>
+          <video src="http://localhost:9090/${video.id}.mp4" controls onplay="contarVisualizacao('${video.id}')"></video>
+          <div class="like-overlay" onclick="darLike('${video.id}')">
+              <img src="img/like.jpg" class="like-icon" />
+          </div>
+      </div>
+      <div class="canal-info">
+          <img class="canal-foto" src="img/perfil_canal.jpg" alt="Canal">
+          <h3>${video.titulo}</h3>
+      </div>
+    `;
+    container.appendChild(videoEl);
+  });
+}
+</script>
+
+    <script>
+function recomendarVideos(todosVideos, preferenciasUsuario, limite = 25) {
+  const pontuados = todosVideos.map(video => {
+    // Similaridade com preferências (tags)
+    const intersecaoTags = video.tags.filter(tag => preferenciasUsuario.tagsCurtidas.includes(tag));
+    const pesoTags = intersecaoTags.length / video.tags.length;
+
+    // Popularidade
+    const popularidade = (video.likes * 2 + video.views) / 3;
+
+    // Score final ponderado
+    const score = popularidade * 0.6 + pesoTags * 100 * 0.4;
+
+    return { ...video, score };
+  });
+
+  // Ordena por score e retorna os 25 primeiros
+  return pontuados
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limite);
+}
+
+function atualizarPreferencias(videoCurtido) {
+  const prefs = JSON.parse(localStorage.getItem('preferencias_usuario') || '{"tagsCurtidas":{}}');
+
+  videoCurtido.tags.forEach(tag => {
+    prefs.tagsCurtidas[tag] = (prefs.tagsCurtidas[tag] || 0) + 1;
+  });
+
+  localStorage.setItem('preferencias_usuario', JSON.stringify(prefs));
+}
+
+function getPreferenciasSimplificadas() {
+  const prefs = JSON.parse(localStorage.getItem('preferencias_usuario') || '{"tagsCurtidas":{}}');
+  return {
+    tagsCurtidas: Object.entries(prefs.tagsCurtidas || {})
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([tag]) => tag)
+  };
+}
+
+
+function tentarAtualizarVideosOfflineFirst() {
+  let tempoConectado = 0;
+  let conectado = navigator.onLine;
+
+  if (!conectado) return;
+
+  const intervalo = setInterval(() => {
+    if (navigator.onLine) {
+      tempoConectado += 1;
+      if (tempoConectado >= 30) {
+        clearInterval(intervalo);
+        fetchNovosVideos();
+      }
+    } else {
+      clearInterval(intervalo);
+    }
+  }, 1000);
+}
+
+function fetchNovosVideos() {
+  fetch("https://sua-api.com/videos")
+    .then(res => res.json())
+    .then(novosVideos => {
+      const armazenados = JSON.parse(localStorage.getItem("videos") || "[]");
+      const idsExistentes = new Set(armazenados.map(v => v.id));
+      const novosFiltrados = novosVideos.filter(v => !idsExistentes.has(v.id));
+
+      const todos = [...armazenados, ...novosFiltrados].slice(-100); // limite offline
+      localStorage.setItem("videos", JSON.stringify(todos));
+    });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  tentarAtualizarVideosOfflineFirst();
+
+  const todosVideos = JSON.parse(localStorage.getItem("videos") || "[]");
+  const preferencias = getPreferenciasSimplificadas();
+
+  const recomendados = recomendarVideos(todosVideos, preferencias);
+  exibirVideosNaTela(recomendados);
+});
+
+        // Menu do usuário
+        function toggleMenu() {
+            const menu = document.getElementById('userOptions');
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Fechar menu quando clicar fora
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('userOptions');
+            const avatar = document.querySelector('.user-avatar');
+            
+            if (!avatar.contains(event.target) && !menu.contains(event.target)) {
+                menu.style.display = 'none';
+            }
+        });
+
+        // Logout (simulado)
+        function logout() {
+            alert('Logout realizado com sucesso!');
+            // Aqui você pode adicionar a lógica real de logout
+        }
+
+        // Modal de upload
+        function openUploadModal() {
+            document.getElementById('uploadModal').style.display = 'flex';
+        }
+
+        function closeUploadModal() {
+            document.getElementById('uploadModal').style.display = 'none';
+            document.getElementById('uploadForm').reset();
+            document.getElementById('fileName').textContent = 'Nenhum arquivo selecionado';
+        }
+
+        // Mostrar nome do arquivo selecionado
+        document.getElementById('videoFile').addEventListener('change', function(e) {
+            const fileName = e.target.files[0] ? e.target.files[0].name : 'Nenhum arquivo selecionado';
+            document.getElementById('fileName').textContent = fileName;
+        });
+
+        // Verifica se o usuário já postou nas últimas 24h
+        function podePostar() {
+            const ultimaPostagem = localStorage.getItem("ultimaPostagemMatola");
+            if (!ultimaPostagem) return true;
+
+            const agora = new Date().getTime();
+            const ultima = parseInt(ultimaPostagem);
+            const horasPassadas = (agora - ultima) / (1000 * 60 * 60);
+
+            return horasPassadas >= 24;
+        }
+
+        function registrarPostagem() {
+            localStorage.setItem("ultimaPostagemMatola", new Date().getTime());
+        }
+
+        // Formulário de upload
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('videoFile');
+            const title = document.getElementById('videoTitle').value;
+            const description = document.getElementById('videoDescription').value;
+     
+            if (!podePostar()) {
+                alert("Você já postou um vídeo hoje. Tente novamente depois de 24 horas.");
+                return;
+            }
+            
+            if (!fileInput.files.length) {
+                alert('Por favor, selecione um vídeo!');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const videoUrl = URL.createObjectURL(file);
+            const videoId = 'video' + Date.now();
+            
+            const videoGrid = document.getElementById('videoGrid');
+            const newVideoCard = document.createElement('div');
+            newVideoCard.className = 'video-card';
+            
+newVideoCard.innerHTML = `
+    <div class="video-wrapper">
+        <div class="view-counter" id="views-${videoId}">0 visualizações</div>
+        <div class="likes-counter" id="likes-${videoId}">0 likes</div>
+        <video src="file:///storage/emulated/0/ArmazenarVideos/${videoId}.mp4" controls onplay="contarVisualizacao('${videoId}')"></video>
+        <div class="like-overlay" onclick="darLike('${videoId}')">
+            <img src="img/like.jpg" alt="Like" class="like-icon" />
+        </div>
+    </div>
+    <div class="canal-info">
+        <img class="canal-foto" src="img/perfil_canal.jpg" alt="Canal">
+        <h3>${title}</h3>
+    </div>
+    <div class="comentarios-box">
+        <h4>Comentários</h4>
+        <div class="comentarios-lista" id="comentarios-${videoId}"></div>
+        <div class="comentario-input">
+            <img class="comentario-avatar" src="img/perfil_canal.jpg" alt="User">
+            <input type="text" placeholder="Comente algo..." onkeypress="enviarComentario(event, 'comentarios-${videoId}')">
+        </div>
+    </div>
+`;
+            
+            videoGrid.appendChild(newVideoCard);
+            
+            const videoElement = newVideoCard.querySelector('video');
+            videoElement.addEventListener('loadedmetadata', function() {
+                const tempoMaximo = 170;
+                const alturaMinima = 1080;
+
+                if (videoElement.duration > tempoMaximo) {
+                    alert("Este vídeo ultrapassa o tempo permitido de 2min50s.");
+                    newVideoCard.remove();
+                    return;
+                }
+
+                if (videoElement.videoHeight < alturaMinima) {
+                    alert("Este vídeo não possui resolução mínima de 1080p.");
+                    newVideoCard.remove();
+                    return;
+                }
+                
+                localStorage.setItem(`views_${videoId}`, 0);
+                localStorage.setItem(`likes_${videoId}`, 0);
+            });
+
+            closeUploadModal();
+            registrarPostagem();
+            alert('Vídeo publicado com sucesso! Você só poderá postar outro vídeo após 24 horas.');
+        });
+
+        // Botão de upload
+        document.querySelector('.upload-btn').addEventListener('click', openUploadModal);
+
+        // Validação de duração para vídeos existentes
+        document.addEventListener("DOMContentLoaded", function() {
+            const videos = document.querySelectorAll(".video-card video");
+
+            videos.forEach(video => {
+                video.addEventListener("loadedmetadata", function() {
+                    const tempoMaximo = 170;
+                    if (video.duration > tempoMaximo || video.videoHeight < 1080) {
+                        alert("Vídeo inválido: ultrapassa o tempo ou não é 1080p.");
+                        video.parentElement.style.display = "none";
+                    }
+                });
+            });
+        });
+
+        // Funções de interação com vídeos
+        function contarVisualizacao(videoId) {
+            let countKey = `views_${videoId}`;
+            let count = localStorage.getItem(countKey) || 0;
+
+            if (!sessionStorage.getItem(`viewed_${videoId}`)) {
+                count++;
+                localStorage.setItem(countKey, count);
+                document.getElementById(`views-${videoId}`).textContent = `${count} visualizações`;
+                sessionStorage.setItem(`viewed_${videoId}`, true);
+            }
+        }
+
+        function darLike(videoId) {
+            let countKey = `likes_${videoId}`;
+            let count = localStorage.getItem(countKey) || 0;
+            count++;
+            localStorage.setItem(countKey, count);
+            document.getElementById(`likes-${videoId}`).textContent = `${count} likes`;
+        }
+
+        function enviarComentario(event, targetId) {
+            if (event.key === "Enter") {
+                const input = event.target;
+                const texto = input.value.trim();
+                if (texto !== "") {
+                    const lista = document.getElementById(targetId);
+                    const div = document.createElement("div");
+                    div.innerHTML = `
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+                            <img src="img/perfil_canal.jpg" class="comentario-avatar" alt="User">
+                            <span style="color:#f5c518; font-size:14px;"><strong>VirtuNum:</strong> ${texto}</span>
+                        </div>
+                    `;
+                    lista.appendChild(div);
+                    input.value = "";
+                }
+            }
+        }
+
+        // Inicializar visualizações e likes ao carregar
+        document.addEventListener("DOMContentLoaded", () => {
+            // Para vídeos existentes (1-3)
+            const cards = document.querySelectorAll(".video-card");
+            
+            cards.forEach((card, index) => {
+                const videoId = `video${index + 1}`;
+                
+                const views = localStorage.getItem(`views_${videoId}`) || 0;
+                const viewElem = card.querySelector(`#views-${videoId}`);
+                if (viewElem) viewElem.textContent = `${views} visualizações`;
+                
+                const likes = localStorage.getItem(`likes_${videoId}`) || 0;
+                const likeElem = card.querySelector(`#likes-${videoId}`);
+                if (likeElem) likeElem.textContent = `${likes} likes`;
+            });
+            
+            // Para vídeos postados (com IDs baseados em timestamp)
+            const allVideoIds = Object.keys(localStorage)
+                .filter(key => key.startsWith('views_') || key.startsWith('likes_'))
+                .map(key => key.split('_')[1])
+                .filter((value, index, self) => self.indexOf(value) === index);
+            
+            allVideoIds.forEach(videoId => {
+                if (!videoId.startsWith('video')) return;
+                
+                const viewElem = document.getElementById(`views-${videoId}`);
+                const likeElem = document.getElementById(`likes-${videoId}`);
+                
+                if (viewElem) {
+                    const views = localStorage.getItem(`views_${videoId}`) || 0;
+                    viewElem.textContent = `${views} visualizações`;
+                }
+                
+                if (likeElem) {
+                    const likes = localStorage.getItem(`likes_${videoId}`) || 0;
+                    likeElem.textContent = `${likes} likes`;
+                }
+            });
+        });
+    </script>
+
+<script>
+// Novo script para as validações
+(function verificarTokenBasico() {
+  // Não verificar se veio da página de token
+  if (new URLSearchParams(window.location.search).has('fromToken')) return;
+  
+  const token = localStorage.getItem('matola_token');
+  const hora = parseInt(localStorage.getItem('matola_token_hora'), 10);
+  
+  if (!token || !hora) {
+    return window.location.href = "virtunum.html";
+  }
+})();
+
+// Validação avançada com IA (executa após carregamento)
+// Em index.html
+document.addEventListener('DOMContentLoaded', async function() {
+  if (window.location.pathname.includes('virtunum.html')) return;
+
+  const token = localStorage.getItem("matola_token");
+  if (!token) return;
+
+  // Se veio de ativação manual, força validação
+  const urlParams = new URLSearchParams(window.location.search);
+  const isManualToken = urlParams.has('tokenSource') && 
+                       urlParams.get('tokenSource') === 'manual';
+
+  try {
+    const res = await fetch("http://localhost:8080/validar_token", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+      signal: AbortSignal.timeout(5000)
+    });
+
+    if (!res.ok) {
+      if (isManualToken) {
+        localStorage.removeItem("matola_token");
+        localStorage.removeItem("matola_token_hora");
+        window.location.href = "virtunum.html?reason=invalid_manual_token";
+      }
+      return;
+    }
+
+    const { valido } = await res.json();
+
+    if (!valido) {
+      localStorage.removeItem("matola_token");
+      localStorage.removeItem("matola_token_hora");
+      window.location.href = "virtunum.html?reason=invalid_token";
+    }
+
+  } catch (err) {
+    console.log("Validação por IA falhou:", err);
+    if (isManualToken) {
+      localStorage.removeItem("matola_token");
+      localStorage.removeItem("matola_token_hora");
+      window.location.href = "virtunum.html?reason=validation_failed";
+    }
+  }
+});
+</script>
+
+<script>
+
+// Configuração dos vídeos engessados
+const VIDEOS_ENGESSADOS = [
+    {
+        id: 'eng1',
+        nomeArquivo: 'video_engessado_1.mp4',
+        titulo: 'Vídeo Premium 1',
+        descricao: 'Descrição do vídeo engessado 1'
+    },
+    {
+        id: 'eng2',
+        nomeArquivo: 'video_engessado_2.mp4',
+        titulo: 'Vídeo Premium 2',
+        descricao: 'Descrição do vídeo engessado 2'
+    },
+
+    {
+        id: 'eng3',
+        nomeArquivo: 'video_engessado_3.mp4',
+        titulo: 'Vídeo Premium 3',
+        descricao: 'Descrição do vídeo engessado 2'
+    },
+
+    {
+        id: 'eng4',
+        nomeArquivo: 'video_engessado_4.mp4',
+        titulo: 'Vídeo Premium 4',
+        descricao: 'Descrição do vídeo engessado 2'
+    },
+
+    {
+        id: 'eng5',
+        nomeArquivo: 'video_engessado_5.mp4',
+        titulo: 'Vídeo Premium 4',
+        descricao: 'Descrição do vídeo engessado 2'
+    }
+
+
+
+
+
+];
+
+
+
+// Caminho base para os vídeos (ajuste conforme necessário)
+const CAMINHO_VIDEOS = 'https://nv-venue-advantages-bet.trycloudflare.com/';
+
+
+
+// Menu do usuário
+function toggleMenu() {
+    const menu = document.getElementById('userOptions');
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+}
+
+document.addEventListener('click', function(event) {
+    const menu = document.getElementById('userOptions');
+    const avatar = document.querySelector('.user-avatar');
+    
+    if (!avatar.contains(event.target) && !menu.contains(event.target)) {
+        menu.style.display = 'none';
+    }
+});
+
+function logout() {
+    localStorage.removeItem('matola_token');
+    localStorage.removeItem('matola_token_hora');
+    window.location.href = "virtunum.html";
+}
+
+// Modal de upload
+function openUploadModal() {
+    document.getElementById('uploadModal').style.display = 'flex';
+}
+
+function closeUploadModal() {
+    document.getElementById('uploadModal').style.display = 'none';
+    document.getElementById('uploadForm').reset();
+    document.getElementById('fileName').textContent = 'Nenhum arquivo selecionado';
+}
+
+document.getElementById('videoFile').addEventListener('change', function(e) {
+    const fileName = e.target.files[0] ? e.target.files[0].name : 'Nenhum arquivo selecionado';
+    document.getElementById('fileName').textContent = fileName;
+});
+
+// Funções para vídeos engessados
+function carregarVideosEngessados() {
+    const videoGrid = document.getElementById('videoGrid');
+    
+    VIDEOS_ENGESSADOS.forEach(video => {
+        const videoCard = document.createElement('div');
+        videoCard.className = 'video-card';
+        videoCard.innerHTML = `
+
+
+
+<div class="video-wrapper">
+    <div class="view-counter" id="views-${video.id}">0 visualizações</div>
+    <div class="likes-counter" id="likes-${video.id}">0 likes</div>
+    <video src="${CAMINHO_VIDEOS}${video.nomeArquivo}" controls onplay="contarVisualizacao('${video.id}')">
+        <div class="video-error">Vídeo não encontrado</div>
+    </video>
+    <div class="like-overlay" onclick="darLike('${video.id}')">
+        <img src="https://nv-venue-advantages-bet.trycloudflare.com/like.jpg" alt="Like" class="like-icon" />
+    </div>
+</div>
+<div class="canal-info">
+    <img class="canal-foto" src="https://nv-venue-advantages-bet.trycloudflare.com/perfil_canal.jpg" alt="Canal" />
+    <h3>${video.titulo}</h3>
+</div>
+<div class="comentarios-box">
+    <h4>Comentários</h4>
+    <div class="comentarios-lista" id="comentarios-${video.id}"></div>
+    <div class="comentario-input">
+        <img class="comentario-avatar" src="https://nv-venue-advantages-bet.trycloudflare.com/perfil_canal.jpg" alt="User" />
+        <input type="text" placeholder="Comente algo..." onkeypress="enviarComentario(event, 'comentarios-${video.id}')">
+    </div>
+</div>
+
+
+
+        `;
+        videoGrid.appendChild(videoCard);
+        
+        // Inicializa contadores se não existirem
+        if (!localStorage.getItem(`views_${video.id}`)) {
+            localStorage.setItem(`views_${video.id}`, 0);
+        }
+        if (!localStorage.getItem(`likes_${video.id}`)) {
+            localStorage.setItem(`likes_${video.id}`, 0);
+        }
+    });
+}
+
+// Funções de interação
+function contarVisualizacao(videoId) {
+    let countKey = `views_${videoId}`;
+    let count = parseInt(localStorage.getItem(countKey)) || 0;
+
+    if (!sessionStorage.getItem(`viewed_${videoId}`)) {
+        count++;
+        localStorage.setItem(countKey, count);
+        const viewElem = document.getElementById(`views-${videoId}`);
+        if (viewElem) viewElem.textContent = `${count} visualizações`;
+        sessionStorage.setItem(`viewed_${videoId}`, true);
+    }
+}
+
+function darLike(videoId) {
+    let countKey = `likes_${videoId}`;
+    let count = parseInt(localStorage.getItem(countKey)) || 0;
+    count++;
+    localStorage.setItem(countKey, count);
+    const likeElem = document.getElementById(`likes-${videoId}`);
+    if (likeElem) likeElem.textContent = `${count} likes`;
+}
+
+function enviarComentario(event, targetId) {
+    if (event.key === "Enter") {
+        const input = event.target;
+        const texto = input.value.trim();
+        if (texto !== "") {
+            const lista = document.getElementById(targetId);
+            const div = document.createElement("div");
+            div.className = "comentario-item";
+            div.innerHTML = `
+                <img src="assets/img/perfil_canal.jpg" class="comentario-avatar" alt="User">
+                <div>
+                    <strong style="color:#f5c518;">Você:</strong> ${texto}
+                </div>
+            `;
+            lista.appendChild(div);
+            input.value = "";
+        }
+    }
+}
+
+// Inicialização
+document.addEventListener("DOMContentLoaded", function() {
+    // Carrega os vídeos engessados
+    carregarVideosEngessados();
+    
+    // Atualiza contadores
+    VIDEOS_ENGESSADOS.forEach(video => {
+        const views = localStorage.getItem(`views_${video.id}`) || 0;
+        const viewElem = document.getElementById(`views-${video.id}`);
+        if (viewElem) viewElem.textContent = `${views} visualizações`;
+        
+        const likes = localStorage.getItem(`likes_${video.id}`) || 0;
+        const likeElem = document.getElementById(`likes-${video.id}`);
+        if (likeElem) likeElem.textContent = `${likes} likes`;
+    });
+    
+    // Configura botão de upload
+    document.querySelector('.upload-btn').addEventListener('click', openUploadModal);
+    
+    // Verifica erros nos vídeos
+    setTimeout(() => {
+        document.querySelectorAll('video').forEach(video => {
+            video.addEventListener('error', function() {
+                const errorMsg = video.querySelector('.video-error');
+                if (errorMsg) errorMsg.style.display = 'block';
+            });
+        });
+    }, 1000);
+});
+
+</script>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", () => {
+  const CAMINHO_THUMBS = 'https://nv-venue-advantages-bet.trycloudflare.com/';
+  const thumbsEngessadas = {
+    "video_engessado_1.mp4": "thumb_video_engessado_1.jpg",
+    "video_engessado_2.mp4": "thumb_video_engessado_2.jpg",
+    "video_engessado_3.mp4": "thumb_video_engessado_3.jpg",
+    "video_engessado_4.mp4": "thumb_video_engessado_4.jpg",
+    "video_engessado_5.mp4": "thumb_video_engessado_5.jpg"
+  };
+
+  // Espera os vídeos carregarem
+  setTimeout(() => {
+    const videos = document.querySelectorAll("video");
+    videos.forEach(video => {
+      try {
+        const nomeArquivo = video.src.split("/").pop();
+        const thumb = thumbsEngessadas[nomeArquivo];
+        if (thumb) {
+          video.setAttribute("poster", CAMINHO_THUMBS + thumb);
+          console.log(`Thumbnail set for ${nomeArquivo}: ${CAMINHO_THUMBS + thumb}`);
+        }
+      } catch (e) {
+        console.error("Error setting thumbnail:", e);
+      }
+    });
+  }, 1500);
+});
+
+</script>
+
+<script>
+// Garante que os recursos sejam cacheados mesmo se o navegador ignorar headers
+if('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+        .then(() => console.log('Service Worker registrado'));
+}
+</script>
+
+</body>
+</html>

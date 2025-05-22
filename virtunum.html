@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Adquirir Token Matola</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #181818;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 15px;
+    }
+    .container {
+      background-color: #1f1f1f;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+      width: 100%;
+      max-width: 420px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 24px;
+    }
+    p, li {
+      font-size: 16px;
+      line-height: 1.5;
+      text-align: center;
+    }
+    ul {
+      padding: 0;
+      list-style: none;
+      color: #ffd700;
+      margin: 15px 0;
+    }
+    hr {
+      border: 0;
+      border-top: 1px solid #333;
+      margin: 20px 0;
+    }
+    .numero-box {
+      margin-bottom: 20px;
+    }
+    .numero-box h3 {
+      margin: 0;
+      font-weight: 600;
+    }
+    .numero {
+      font-size: 20px;
+      font-weight: bold;
+      margin: 5px 0;
+    }
+    .copiar-btn {
+      background-color: #f5c518;
+      color: #000;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .copiar-btn:hover {
+      background-color: #e0b814;
+    }
+    .section {
+      margin-top: 30px;
+    }
+    .section h3 {
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+    .input-token {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      margin-bottom: 10px;
+      font-size: 16px;
+      background-color: #2a2a2a;
+      color: #fff;
+    }
+    .ativar-btn {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      background-color: #3b82f6;
+      border: none;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .ativar-btn:hover {
+      background-color: #2563eb;
+    }
+    .token-btns {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    .token-btn {
+      padding: 10px;
+      border-radius: 8px;
+      background-color: #6d28d9;
+      color: white;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .token-btn:hover {
+      background-color: #7c3aed;
+    }
+    .mensagem {
+      margin-top: 10px;
+      color: #90ee90;
+      text-align: center;
+      font-weight: bold;
+    }
+
+/* Adicione ao seu CSS */
+.copiado {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  z-index: 1000;
+  animation: fadeOut 3s forwards;
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; display: none; }
+}
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Adquirir Token Matola</h2>
+    <p>Escolha seu token para aceder a todos os vídeos offline:</p>
+    <ul>
+      <li>2 MZN = 12 h</li>
+      <li>5 MZN = 24 h</li>
+      <li>10 MZN = 48 h</li>
+    </ul>
+
+    <hr>
+
+    <div class="numero-box">
+      <h3>M-Pesa:</h3>
+      <p class="numero" id="mpesa">845691070</p>
+      <button class="copiar-btn" onclick="copiarTexto('mpesa')">Copiar número M-Pesa</button>
+    </div>
+
+    <div class="numero-box">
+      <h3>e-Mola:</h3>
+      <p class="numero" id="emola">865613342</p>
+      <button class="copiar-btn" onclick="copiarTexto('emola')">Copiar número e-Mola</button>
+    </div>
+
+    <div class="section">
+      <h3>Primeira vez aqui?</h3>
+      <button class="ativar-btn" onclick="ativarTokenGratis()">Clique aqui e receba token gratuito</button>
+      <div class="mensagem" id="mensagem"></div>
+    </div>
+
+    <div class="section">
+      <h3>Já recebeu seu token por SMS?</h3>
+      <input type="text" class="input-token" id="token_input" placeholder="Cole seu token aqui">
+      <button class="ativar-btn" onclick="ativarTokenPago()">Ativar Token</button>
+    </div>
+
+    <div class="section">
+      <h3>Escolha o seu Token:</h3>
+      <div class="token-btns">
+        <button class="token-btn" onclick="confirmarPagamento(2)">Token 2MZN – 12 h</button>
+        <button class="token-btn" onclick="confirmarPagamento(5)">Token 5MZN – 24 h</button>
+        <button class="token-btn" onclick="confirmarPagamento(10)">Token 10 MZN – 48 h</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+function copiarTexto(id) {
+  const texto = document.getElementById(id).innerText;
+  navigator.clipboard.writeText(texto).then(() => {
+    // Mudar para um toast/snackbar mais discreto que um alert()
+    alert("Número copiado: " + texto);
+  }).catch(err => {
+    console.error("Erro ao copiar:", err);
+    // Fallback para usuários com navegadores antigos
+    fallbackCopyText(texto);
+  });
+}
+
+// Fallback para navegadores mais antigos
+function fallbackCopyText(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand('copy');
+    alert("Número copiado: " + text);
+  } catch (err) {
+    alert("Não foi possível copiar. Selecione o número e copie manualmente.");
+  }
+  document.body.removeChild(textarea);
+}
+
+function mostrarFeedback(mensagem) {
+  const feedback = document.createElement('div');
+  feedback.className = 'copiado';
+  feedback.textContent = mensagem;
+  document.body.appendChild(feedback);
+  setTimeout(() => {
+    feedback.remove();
+  }, 3000);
+}
+
+function copiarTexto(id) {
+  const texto = document.getElementById(id).innerText;
+  navigator.clipboard.writeText(texto).then(() => {
+    mostrarFeedback(`Número ${texto} copiado!`);
+  }).catch(err => {
+    console.error("Erro ao copiar:", err);
+    fallbackCopyText(texto);
+  });
+}
+
+async function copiarTexto(id) {
+  try {
+    const texto = document.getElementById(id).innerText;
+    
+    // Verificar permissão (opcional)
+    const { state } = await navigator.permissions.query({
+      name: 'clipboard-write'
+    });
+    
+    if (state === 'granted' || state === 'prompt') {
+      await navigator.clipboard.writeText(texto);
+      mostrarFeedback(`Número ${texto} copiado!`);
+    } else {
+      fallbackCopyText(texto);
+    }
+  } catch (err) {
+    console.error("Erro ao copiar:", err);
+    fallbackCopyText(texto);
+  }
+}
+
+function ativarTokenGratis() {
+  try {
+    if (!localStorage.getItem("matola_token")) {
+      const agora = new Date().getTime();
+      
+      // Armazena com timestamp atual
+      localStorage.setItem("matola_token", "TOKEN-GRATUITO");
+      localStorage.setItem("matola_token_hora", agora.toString());
+      
+      // Verifica se armazenou corretamente
+      if (localStorage.getItem("matola_token") === "TOKEN-GRATUITO") {
+        document.getElementById("mensagem").innerText = "Token ativado! Redirecionando...";
+        
+        // Redireciona com parâmetro especial
+        setTimeout(() => {
+          window.location.href = "index.html?tokenSource=virtunum&time=" + Date.now();
+        }, 1200);
+      } else {
+        throw new Error('Falha ao armazenar token');
+      }
+    } else {
+      alert("Você já usou seu token gratuito.");
+    }
+  } catch (error) {
+    console.error("Erro ao ativar token:", error);
+    alert("Erro ao ativar token. Tente novamente.");
+  }
+}
+
+async function ativarTokenPago() {
+  const token = document.getElementById("token_input").value.trim();
+  
+  if (!token) {
+    alert("Por favor, cole um token válido.");
+    return;
+  }
+
+  // Verificação básica de formato (exemplo: começa com "MTL-" e tem 12 caracteres)
+if (!/^MTL-[A-Z0-9]{12}$/.test(token)) {
+  alert("Formato de token inválido. Insira um token válido no formato: MTL-XXXXXXXXXXXX");
+  return;
+}
+
+  try {
+    // Validação com IA antes de redirecionar
+    const res = await fetch("http://localhost:8080/validar_token", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+      signal: AbortSignal.timeout(5000)
+    });
+
+    if (!res.ok) throw new Error("Token inválido");
+
+    const { valido, expiracao } = await res.json();
+
+    if (!valido) {
+      alert("Token inválido ou já utilizado.");
+      return;
+    }
+
+    // Armazena e redireciona somente se válido
+    const agora = new Date().getTime();
+    localStorage.setItem("matola_token", token);
+    localStorage.setItem("matola_token_hora", agora.toString());
+    window.location.href = "index.html?tokenSource=manual";
+
+  } catch (err) {
+    console.error("Erro na validação:", err);
+    alert("Não foi possível validar o token. Verifique sua conexão ou tente novamente.");
+  }
+}
+
+async function validarTokenNoFrontend(token) {
+  try {
+    const response = await fetch('http://localhost:8080/validar_token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token })
+    });
+    
+    const { valido } = await response.json();
+    return valido;
+  } catch (error) {
+    console.error("Erro na validação:", error);
+    return false;
+  }
+}
+
+function confirmarPagamento(valor) {
+  // Dados organizados para fácil manutenção
+  const opcoesPagamento = {
+    2: {
+      valor: "2 MZN",
+      duracao: "12 horas",
+      mpesa: "845691070",
+      emola: "865613342",
+      detalhes: "Acesso básico por 12 horas"
+    },
+    5: {
+      valor: "5 MZN", 
+      duracao: "24 horas",
+      mpesa: "845691070",
+      emola: "865613342",
+      detalhes: "Acesso padrão por 24 horas"
+    },
+    10: {
+      valor: "10 MZN",
+      duracao: "48 horas",
+      mpesa: "845691070",
+      emola: "865613342",
+      detalhes: "Acesso premium por 48 horas"
+    }
+  };
+
+  const opcao = opcoesPagamento[valor];
+  
+  // Monta a mensagem formatada
+  const mensagem = `
+  🎬 Token Matola Vídeo - ${opcao.valor} (${opcao.duracao})
+  
+  ${opcao.detalhes}
+  
+  Como adquirir:
+  1️⃣ Transfira ${opcao.valor} via:
+     • M-Pesa: ${opcao.mpesa}
+     • e-Mola: ${opcao.emola}
+  
+  2️⃣ Aguarde o SMS com seu token
+  3️⃣ Cole o token no campo acima
+  
+  ▶️ Acesso imediato após confirmação!
+  `;
+
+  alert(mensagem);
+}
+  </script>
+
+</body>
+</html>
